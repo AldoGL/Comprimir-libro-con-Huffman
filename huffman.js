@@ -15,7 +15,20 @@ document.getElementById('file-input').addEventListener('change', function(event)
     }
 });
 
-// 2. Clase para los nodos del Árbol de Huffman
+// ==========================================
+// MÓDULO INTEGRANTE 1: Lógica Core de Huffman
+// ==========================================
+
+// ISSUE 1: Calcular frecuencias de los caracteres
+function calcularFrecuencias(texto) {
+    const freqMap = {};
+    for (let char of texto) {
+        freqMap[char] = (freqMap[char] || 0) + 1;
+    }
+    return freqMap;
+}
+
+// ISSUE 2: Clase para los nodos y construcción del Árbol de Huffman
 class Node {
     constructor(char, freq, left = null, right = null) {
         this.char = char;
@@ -25,21 +38,7 @@ class Node {
     }
 }
 
-// 3. Lógica principal de compresión
-document.getElementById('btn-compress').addEventListener('click', () => {
-    const text = document.getElementById('input-text').value;
-    if (!text) {
-        alert("Por favor, ingresa un texto o sube un archivo .txt para comprimir.");
-        return;
-    }
-
-    // Calcular frecuencias
-    const freqMap = {};
-    for (let char of text) {
-        freqMap[char] = (freqMap[char] || 0) + 1;
-    }
-
-    // Construir el árbol de Huffman
+function construirArbolHuffman(freqMap) {
     let nodes = Object.entries(freqMap).map(([char, freq]) => new Node(char, freq));
     
     // Manejo de caso especial: texto con un solo tipo de carácter
@@ -48,7 +47,7 @@ document.getElementById('btn-compress').addEventListener('click', () => {
     }
 
     while (nodes.length > 1) {
-        // Ordenar nodos por frecuencia ascendente
+        // Ordenar nodos por frecuencia ascendente (comportamiento de cola de prioridad)
         nodes.sort((a, b) => a.freq - b.freq);
         
         const left = nodes.shift();
@@ -57,28 +56,52 @@ document.getElementById('btn-compress').addEventListener('click', () => {
         
         nodes.push(parent);
     }
-    const root = nodes[0];
+    
+    return nodes[0]; // Retorna el nodo raíz del árbol
+}
 
-    // Generar códigos
+// ISSUE 3: Recorrer el árbol para generar los códigos binarios
+function generarCodigosHuffman(nodoRaiz) {
     const huffmanCodes = {};
-    function generateCodes(node, code) {
+    
+    function traverse(node, code) {
         if (!node) return;
         if (node.char !== null) {
-            huffmanCodes[node.char] = code || "0"; // "0" si solo hay 1 carácter
+            huffmanCodes[node.char] = code || "0"; // "0" por defecto si solo hay 1 carácter
         }
-        generateCodes(node.left, code + "0");
-        generateCodes(node.right, code + "1");
+        traverse(node.left, code + "0");
+        traverse(node.right, code + "1");
     }
-    generateCodes(root, "");
+    
+    traverse(nodoRaiz, "");
+    return huffmanCodes;
+}
 
-    // Comprimir texto
+// ==========================================
+// INTEGRACIÓN CON LA INTERFAZ
+// ==========================================
+
+// 3. Lógica principal de compresión
+document.getElementById('btn-compress').addEventListener('click', () => {
+    const text = document.getElementById('input-text').value;
+    if (!text) {
+        alert("Por favor, ingresa un texto o sube un archivo .txt para comprimir.");
+        return;
+    }
+
+    // Llamadas a las funciones del Integrante 1
+    const freqMap = calcularFrecuencias(text);
+    const raizArbol = construirArbolHuffman(freqMap);
+    const huffmanCodes = generarCodigosHuffman(raizArbol);
+
+    // Comprimir texto (Parte del Integrante 2)
     let compressedText = "";
     for (let char of text) {
         compressedText += huffmanCodes[char];
     }
     document.getElementById('output-text').value = compressedText;
 
-    // Actualizar UI (Tabla y Estadísticas)
+    // Actualizar UI (Tabla y Estadísticas - Parte del Integrante 3 y 4)
     actualizarTabla(freqMap, huffmanCodes);
     actualizarEstadisticas(text.length, compressedText.length);
 });
@@ -99,7 +122,7 @@ document.getElementById('btn-decompress').addEventListener('click', () => {
 
 // 5. Lógica para el botón de Limpiar
 document.getElementById('btn-clear').addEventListener('click', () => {
-    document.getElementById('file-input').value = ""; // Limpia el input de archivo
+    document.getElementById('file-input').value = ""; 
     document.getElementById('input-text').value = "";
     document.getElementById('output-text').value = "";
     document.getElementById('huffman-body').innerHTML = '<tr><td colspan="3" class="vacio">Esperando texto...</td></tr>';
