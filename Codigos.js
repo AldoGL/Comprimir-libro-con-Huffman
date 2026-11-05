@@ -1,11 +1,3 @@
-// MÓDULO DE CÓDIGO MOSTRADO EN EL PANEL DERECHO
-//
-// Para cada algoritmo se guarda:
-//   - lineas: el código que se muestra (versión resumida de lo que hace ordenamientos.js).
-//   - mapa:   qué líneas se resaltan cuando ocurre cada tipo de evento del algoritmo.
-//             La clave es evento.paso (si existe) o evento.type ("compare", "swap", "overwrite").
-//
-// El número entre /* */ es el índice de línea que usa el mapa.
 
 const CODIGOS = {
     bubble: {
