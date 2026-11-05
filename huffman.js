@@ -1,16 +1,16 @@
+// Variable global para almacenar el árbol actual y poder descomprimir
+let arbolHuffmanActual = null;
+let textoOriginalGuardado = "";
+
 // 1. Lógica para leer archivos .txt automáticamente
 document.getElementById('file-input').addEventListener('change', function(event) {
     const file = event.target.files[0];
-    
+
     if (file) {
         const reader = new FileReader();
-        
-        // Cuando termine de leer el archivo, pone el texto en el textarea
         reader.onload = function(e) {
             document.getElementById('input-text').value = e.target.result;
         };
-        
-        // Lee el archivo como texto
         reader.readAsText(file);
     }
 });
@@ -19,7 +19,6 @@ document.getElementById('file-input').addEventListener('change', function(event)
 // MÓDULO INTEGRANTE 1: Lógica Core de Huffman
 // ==========================================
 
-// ISSUE 1: Calcular frecuencias de los caracteres
 function calcularFrecuencias(texto) {
     const freqMap = {};
     for (let char of texto) {
@@ -28,7 +27,6 @@ function calcularFrecuencias(texto) {
     return freqMap;
 }
 
-// ISSUE 2: Clase para los nodos y construcción del Árbol de Huffman
 class Node {
     constructor(char, freq, left = null, right = null) {
         this.char = char;
@@ -40,48 +38,78 @@ class Node {
 
 function construirArbolHuffman(freqMap) {
     let nodes = Object.entries(freqMap).map(([char, freq]) => new Node(char, freq));
-    
-    // Manejo de caso especial: texto con un solo tipo de carácter
+
+    if (nodes.length === 0) return null;
+
     if (nodes.length === 1) {
         nodes.push(new Node(null, 0));
     }
 
     while (nodes.length > 1) {
-        // Ordenar nodos por frecuencia ascendente (comportamiento de cola de prioridad)
         nodes.sort((a, b) => a.freq - b.freq);
-        
+
         const left = nodes.shift();
         const right = nodes.shift();
         const parent = new Node(null, left.freq + right.freq, left, right);
-        
+
         nodes.push(parent);
     }
-    
-    return nodes[0]; // Retorna el nodo raíz del árbol
+
+    return nodes[0];
 }
 
-// ISSUE 3: Recorrer el árbol para generar los códigos binarios
 function generarCodigosHuffman(nodoRaiz) {
     const huffmanCodes = {};
-    
+
     function traverse(node, code) {
         if (!node) return;
         if (node.char !== null) {
-            huffmanCodes[node.char] = code || "0"; // "0" por defecto si solo hay 1 carácter
+            huffmanCodes[node.char] = code || "0";
         }
         traverse(node.left, code + "0");
         traverse(node.right, code + "1");
     }
-    
+
     traverse(nodoRaiz, "");
     return huffmanCodes;
 }
 
 // ==========================================
-// INTEGRACIÓN CON LA INTERFAZ
+// MÓDULO DESCOMPRESIÓN (Pruebas de Integridad)
 // ==========================================
 
-// 3. Lógica principal de compresión
+function descomprimirHuffman(textoComprimido, nodoRaiz) {
+    if (!nodoRaiz || !textoComprimido) return "";
+
+    // Caso especial: sólo 1 tipo de carácter en todo el texto
+    if (!nodoRaiz.left && !nodoRaiz.right && nodoRaiz.char !== null) {
+        return nodoRaiz.char.repeat(textoComprimido.length);
+    }
+
+    let textoDescomprimido = "";
+    let nodoActual = nodoRaiz;
+
+    for (let bit of textoComprimido) {
+        if (bit === '0') {
+            nodoActual = nodoActual.left;
+        } else if (bit === '1') {
+            nodoActual = nodoActual.right;
+        }
+
+        if (nodoActual && nodoActual.char !== null) {
+            textoDescomprimido += nodoActual.char;
+            nodoActual = nodoRaiz;
+        }
+    }
+
+    return textoDescomprimido;
+}
+
+// ==========================================
+// INTEGRACIÓN Y MOSTRAR RESULTADOS EN GUI
+// ==========================================
+
+// 3. Compresión y muestra de resultados
 document.getElementById('btn-compress').addEventListener('click', () => {
     const text = document.getElementById('input-text').value;
     if (!text) {
@@ -89,39 +117,48 @@ document.getElementById('btn-compress').addEventListener('click', () => {
         return;
     }
 
-    // Llamadas a las funciones del Integrante 1
+    textoOriginalGuardado = text;
     const freqMap = calcularFrecuencias(text);
-    const raizArbol = construirArbolHuffman(freqMap);
-    const huffmanCodes = generarCodigosHuffman(raizArbol);
+    arbolHuffmanActual = construirArbolHuffman(freqMap);
+    const huffmanCodes = generarCodigosHuffman(arbolHuffmanActual);
 
-    // Comprimir texto (Parte del Integrante 2)
     let compressedText = "";
     for (let char of text) {
         compressedText += huffmanCodes[char];
     }
     document.getElementById('output-text').value = compressedText;
 
-    // Actualizar UI (Tabla y Estadísticas - Parte del Integrante 3 y 4)
     actualizarTabla(freqMap, huffmanCodes);
     actualizarEstadisticas(text.length, compressedText.length);
 });
 
-// 4. Lógica para el botón de Descomprimir (Conexión para el Integrante 2)
+// 4. Descompresión y verificación final
 document.getElementById('btn-decompress').addEventListener('click', () => {
     const compressedText = document.getElementById('output-text').value;
-    if (!compressedText) {
-        alert("No hay texto comprimido para descomprimir.");
+    if (!compressedText || !arbolHuffmanActual) {
+        alert("Primero debes comprimir un texto para generar el árbol de Huffman.");
         return;
     }
-    
-    // Aquí el Integrante 2 conectará su función de descompresión.
-    // Ejemplo: const textoOriginal = descomprimir(compressedText, arbolHuffman);
-    
-    alert("Botón conectado: Aquí se ejecutará la función de descompresión del Integrante 2.");
+
+    const textoRestaurado = descomprimirHuffman(compressedText, arbolHuffmanActual);
+
+    // Pruebas finales de integridad
+    const esIdentico = (textoRestaurado === textoOriginalGuardado);
+
+    if (esIdentico) {
+        alert(" PRUEBA EXITOSA: El texto decodificado es 100% IDÉNTICO al original.\n\nLongitud: " + textoRestaurado.length + " caracteres.");
+    } else {
+        alert(" ERROR DE INTEGRIDAD: El texto decodificado NO coincide con el original.");
+    }
+
+    // Muestra el texto restaurado en la entrada para inspección
+    document.getElementById('input-text').value = textoRestaurado;
 });
 
-// 5. Lógica para el botón de Limpiar
+// 5. Botón de Limpiar
 document.getElementById('btn-clear').addEventListener('click', () => {
+    arbolHuffmanActual = null;
+    textoOriginalGuardado = "";
     document.getElementById('file-input').value = ""; 
     document.getElementById('input-text').value = "";
     document.getElementById('output-text').value = "";
@@ -131,18 +168,15 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     document.getElementById('stat-ratio').innerText = "0%";
 });
 
-// 6. Funciones auxiliares para la Interfaz Gráfica
 function actualizarTabla(freqMap, huffmanCodes) {
     const tbody = document.getElementById('huffman-body');
     tbody.innerHTML = "";
-    
-    // Ordenar por mayor frecuencia
+
     const sortedChars = Object.keys(freqMap).sort((a, b) => freqMap[b] - freqMap[a]);
 
     sortedChars.forEach(char => {
         const tr = document.createElement('tr');
-        
-        // Mostrar espacios y saltos de línea de forma legible
+
         let displayChar = char;
         if (char === " ") displayChar = "[Espacio]";
         else if (char === "\n") displayChar = "[Salto de línea]";
@@ -159,7 +193,7 @@ function actualizarTabla(freqMap, huffmanCodes) {
 }
 
 function actualizarEstadisticas(originalLength, compressedBits) {
-    const originalBits = originalLength * 8; // Asumiendo 8 bits por carácter (ASCII)
+    const originalBits = originalLength * 8;
     const ratio = ((1 - (compressedBits / originalBits)) * 100).toFixed(2);
 
     document.getElementById('stat-orig').innerText = originalBits.toLocaleString();
