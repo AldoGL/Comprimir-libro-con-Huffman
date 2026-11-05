@@ -3,46 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compresión Huffman</title>
+    <title>Compresión de Libros con Huffman</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Compresor de Texto - Huffman</h1>
-        
-        <div class="input-section">
-            <label for="input-text">Ingresa el texto a comprimir:</label>
-            <textarea id="input-text" rows="6" placeholder="Escribe o pega tu texto aquí..."></textarea>
-            <button id="btn-comprimir">Comprimir Texto</button>
+
+    <header>
+        <h1>Compresión de Libros con Algoritmo Huffman</h1>
+    </header>
+
+    <div class="main-container">
+        <!-- Panel Izquierdo: Entradas y Salidas -->
+        <div class="left-panel">
+            <div class="control-group">
+                <label for="file-input">Cargar archivo de texto (.txt):</label>
+                <input type="file" id="file-input" accept=".txt" class="file-upload">
+            </div>
+
+            <div class="control-group">
+                <label for="input-text">Texto Original / Entrada:</label>
+                <textarea id="input-text" placeholder="Escribe o pega tu texto aquí..."></textarea>
+            </div>
+
+            <div class="btn-container">
+                <button id="btn-compress" class="btn-start">Comprimir</button>
+                <button id="btn-decompress" class="btn-decompress">Descomprimir</button>
+                <button id="btn-clear" class="btn-reset">Limpiar</button>
+            </div>
+
+            <div class="control-group result-group">
+                <label for="output-text">Resultado Codificado (Bits):</label>
+                <textarea id="output-text" readonly placeholder="El resultado binario aparecerá aquí..."></textarea>
+            </div>
         </div>
 
-        <div class="results-section" id="results-section" style="display: none;">
-            <h2>Resultados de Compresión</h2>
-            
-            <div class="stats-cards">
-                <div class="card">
-                    <h3>Tamaño Original</h3>
-                    <p id="tamano-original">0 bytes</p>
-                </div>
-                <div class="card">
-                    <h3>Tamaño Codificado</h3>
-                    <p id="tamano-codificado">0 bytes</p>
-                </div>
-                <div class="card destacada">
-                    <h3>Compresión</h3>
-                    <p id="porcentaje-compresion">0%</p>
+        <!-- Panel Derecho: Estadísticas y Tabla -->
+        <div class="right-panel">
+            <!-- Branch: Mostrar Resultados GUI & Calcular Porcentaje -->
+            <div id="stats-panel">
+                <h3>Estadísticas de Compresión</h3>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <span>Original:</span>
+                        <p id="stat-orig" class="highlight">0 bytes</p>
+                    </div>
+                    <div class="stat-card">
+                        <span>Codificado:</span>
+                        <p id="stat-comp" class="highlight">0 bytes</p>
+                    </div>
+                    <div class="stat-card">
+                        <span>Reducción:</span>
+                        <p id="stat-ratio" class="highlight">0%</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="details">
-                <h3>Verificación de Integridad</h3>
-                <p id="status-integridad" class="status-box"></p>
-
-                <h3>Texto Codificado (Bits)</h3>
-                <textarea id="texto-codificado" rows="4" readonly></textarea>
-
-                <h3>Texto Descomprimido</h3>
-                <textarea id="texto-descomprimido" rows="4" readonly></textarea>
+            <!-- Tabla de Frecuencias y Códigos -->
+            <div class="control-group">
+                <label>Tabla de Códigos Huffman:</label>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Carácter</th>
+                                <th>Frecuencia</th>
+                                <th>Código</th>
+                            </tr>
+                        </thead>
+                        <tbody id="huffman-body">
+                            <tr>
+                                <td colspan="3" class="vacio">Esperando texto...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

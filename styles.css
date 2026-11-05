@@ -107,7 +107,7 @@ button:hover { opacity: 0.85; }
 .btn-decompress { background-color: #3182ce; }
 .btn-reset { background-color: #9b2c2c; }
 
-/* Tablas y Estadísticas */
+/* Panel de Estadísticas y Tarjetas */
 #stats-panel {
     background-color: #2d3748;
     border-radius: 8px;
@@ -116,15 +116,37 @@ button:hover { opacity: 0.85; }
 
 #stats-panel h3 {
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.stats-container {
+    display: flex;
+    gap: 10px;
+}
+
+.stat-card {
+    flex: 1;
+    background-color: #1e1e1e;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid #444;
+}
+
+.stat-card span {
+    font-size: 12px;
+    color: #a0aec0;
+    display: block;
 }
 
 .highlight {
     color: #38a169;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
+    margin: 4px 0 0 0;
 }
 
+/* Tablas de Huffman */
 .table-container {
     overflow-y: auto;
     max-height: 400px;
