@@ -106,6 +106,30 @@ function descomprimirHuffman(textoComprimido, nodoRaiz) {
 }
 
 // ==========================================
+// NUEVO MÓDULO: Cálculo de Bytes y Porcentaje
+// ==========================================
+
+function calcularEstadisticasCompresion(textoOriginal, cadenaBits) {
+    // 1. Tamaño original en Bytes (UTF-8)
+    const bytesOriginales = new TextEncoder().encode(textoOriginal).length;
+
+    // 2. Tamaño codificado en Bytes (8 bits = 1 Byte)
+    const bytesCodificados = Math.ceil(cadenaBits.length / 8);
+
+    // 3. Porcentaje de reducción/compresión
+    let porcentajeReduccion = 0;
+    if (bytesOriginales > 0) {
+        porcentajeReduccion = ((1 - (bytesCodificados / bytesOriginales)) * 100).toFixed(2);
+    }
+
+    return {
+        bytesOriginales,
+        bytesCodificados,
+        porcentajeReduccion: Math.max(0, porcentajeReduccion) // Evita valores negativos
+    };
+}
+
+// ==========================================
 // INTEGRACIÓN Y MOSTRAR RESULTADOS EN GUI
 // ==========================================
 
@@ -129,7 +153,7 @@ document.getElementById('btn-compress').addEventListener('click', () => {
     document.getElementById('output-text').value = compressedText;
 
     actualizarTabla(freqMap, huffmanCodes);
-    actualizarEstadisticas(text.length, compressedText.length);
+    actualizarEstadisticas(text, compressedText);
 });
 
 // 4. Descompresión y verificación final
@@ -146,9 +170,9 @@ document.getElementById('btn-decompress').addEventListener('click', () => {
     const esIdentico = (textoRestaurado === textoOriginalGuardado);
 
     if (esIdentico) {
-        alert(" PRUEBA EXITOSA: El texto decodificado es 100% IDÉNTICO al original.\n\nLongitud: " + textoRestaurado.length + " caracteres.");
+        alert("✔ PRUEBA EXITOSA: El texto decodificado es 100% IDÉNTICO al original.\n\nLongitud: " + textoRestaurado.length + " caracteres.");
     } else {
-        alert(" ERROR DE INTEGRIDAD: El texto decodificado NO coincide con el original.");
+        alert("❌ ERROR DE INTEGRIDAD: El texto decodificado NO coincide con el original.");
     }
 
     // Muestra el texto restaurado en la entrada para inspección
@@ -163,8 +187,8 @@ document.getElementById('btn-clear').addEventListener('click', () => {
     document.getElementById('input-text').value = "";
     document.getElementById('output-text').value = "";
     document.getElementById('huffman-body').innerHTML = '<tr><td colspan="3" class="vacio">Esperando texto...</td></tr>';
-    document.getElementById('stat-orig').innerText = "0";
-    document.getElementById('stat-comp').innerText = "0";
+    document.getElementById('stat-orig').innerText = "0 bytes";
+    document.getElementById('stat-comp').innerText = "0 bytes";
     document.getElementById('stat-ratio').innerText = "0%";
 });
 
@@ -192,11 +216,11 @@ function actualizarTabla(freqMap, huffmanCodes) {
     });
 }
 
-function actualizarEstadisticas(originalLength, compressedBits) {
-    const originalBits = originalLength * 8;
-    const ratio = ((1 - (compressedBits / originalBits)) * 100).toFixed(2);
+function actualizarEstadisticas(textoOriginal, compressedBits) {
+    const stats = calcularEstadisticasCompresion(textoOriginal, compressedBits);
 
-    document.getElementById('stat-orig').innerText = originalBits.toLocaleString();
-    document.getElementById('stat-comp').innerText = compressedBits.toLocaleString();
-    document.getElementById('stat-ratio').innerText = ratio > 0 ? `-${ratio}%` : `${ratio}%`;
+    // Muestra de resultados en bytes y porcentaje
+    document.getElementById('stat-orig').innerText = `${stats.bytesOriginales.toLocaleString()} bytes`;
+    document.getElementById('stat-comp').innerText = `${stats.bytesCodificados.toLocaleString()} bytes`;
+    document.getElementById('stat-ratio').innerText = `${stats.porcentajeReduccion}%`;
 }
