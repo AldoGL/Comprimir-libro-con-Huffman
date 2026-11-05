@@ -3,70 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compresor de Texto con Código de Huffman</title>
+    <title>Compresión Huffman</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <header>
-        <h1>Compresión de Texto (Libros) con Huffman</h1>
-        <p>Sube tu archivo .txt, calcula las frecuencias y comprímelo utilizando el algoritmo de Huffman.</p>
-    </header>
-
-    <div class="main-container">
-        <!-- Panel Izquierdo: Entrada y Resultados -->
-        <div class="left-panel">
-            
-            <!-- Control para subir archivo .txt -->
-            <div class="control-group">
-                <label for="file-input"> Subir archivo del libro (.txt):</label>
-                <input type="file" id="file-input" accept=".txt" class="file-upload">
-            </div>
-
-            <div class="control-group">
-                <label for="input-text">Texto Original (Libro):</label>
-                <textarea id="input-text" placeholder="Aquí aparecerá el texto de tu archivo... o puedes escribirlo."></textarea>
-            </div>
-            
-            <div class="btn-container">
-                <button class="btn-start" id="btn-compress">▶ Comprimir</button>
-                <button class="btn-decompress" id="btn-decompress">⏮ Descomprimir</button>
-                <button class="btn-reset" id="btn-clear">↺ Limpiar</button>
-            </div>
-
-            <div class="control-group result-group">
-                <label for="output-text">Texto Comprimido (Binario):</label>
-                <textarea id="output-text" readonly placeholder="Aquí aparecerá el código binario..."></textarea>
-            </div>
+    <div class="container">
+        <h1>Compresor de Texto - Huffman</h1>
+        
+        <div class="input-section">
+            <label for="input-text">Ingresa el texto a comprimir:</label>
+            <textarea id="input-text" rows="6" placeholder="Escribe o pega tu texto aquí..."></textarea>
+            <button id="btn-comprimir">Comprimir Texto</button>
         </div>
 
-        <!-- Panel Derecho: Tabla de Códigos y Estadísticas -->
-        <div class="right-panel">
-            <div id="stats-panel">
-                <div class="stats-header">
-                    <h3>Estadísticas de Compresión</h3>
+        <div class="results-section" id="results-section" style="display: none;">
+            <h2>Resultados de Compresión</h2>
+            
+            <div class="stats-cards">
+                <div class="card">
+                    <h3>Tamaño Original</h3>
+                    <p id="tamano-original">0 bytes</p>
                 </div>
-                <div class="stats-body" id="compression-stats">
-                    <p>Bits Originales (ASCII - 8 bits/char): <span id="stat-orig">0</span></p>
-                    <p>Bits Comprimidos (Huffman): <span id="stat-comp">0</span></p>
-                    <p>Tasa de compresión: <span id="stat-ratio" class="highlight">0%</span></p>
+                <div class="card">
+                    <h3>Tamaño Codificado</h3>
+                    <p id="tamano-codificado">0 bytes</p>
+                </div>
+                <div class="card destacada">
+                    <h3>Compresión</h3>
+                    <p id="porcentaje-compresion">0%</p>
                 </div>
             </div>
 
-            <div class="table-container">
-                <h3>Tabla de Frecuencias y Códigos</h3>
-                <table id="huffman-table">
-                    <thead>
-                        <tr>
-                            <th>Carácter</th>
-                            <th>Frecuencia</th>
-                            <th>Código Huffman</th>
-                        </tr>
-                    </thead>
-                    <tbody id="huffman-body">
-                        <tr><td colspan="3" class="vacio">Esperando texto...</td></tr>
-                    </tbody>
-                </table>
+            <div class="details">
+                <h3>Verificación de Integridad</h3>
+                <p id="status-integridad" class="status-box"></p>
+
+                <h3>Texto Codificado (Bits)</h3>
+                <textarea id="texto-codificado" rows="4" readonly></textarea>
+
+                <h3>Texto Descomprimido</h3>
+                <textarea id="texto-descomprimido" rows="4" readonly></textarea>
             </div>
         </div>
     </div>
